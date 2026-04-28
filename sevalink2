@@ -1,0 +1,41 @@
+async function registerVolunteer() {
+  const name = document.getElementById("vname").value;
+  const skill = document.getElementById("vskill").value;
+
+  await fetch("/register", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, skill, available: true })
+  });
+
+  alert("Volunteer Registered!");
+}
+
+async function postRequest() {
+  const location = document.getElementById("location").value;
+  const need = document.getElementById("need").value;
+  const priority = document.getElementById("priority").value;
+
+  const res = await fetch("/request", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ location, need, priority })
+  });
+
+  const data = await res.json();
+  alert("Request Sent! Assigned to: " + (data.request.assignedTo || "No one yet"));
+}
+
+async function loadRequests() {
+  const res = await fetch("/requests");
+  const data = await res.json();
+
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+
+  data.forEach(r => {
+    const li = document.createElement("li");
+    li.textContent = `${r.need} at ${r.location} [${r.priority}] → ${r.assignedTo || "Pending"}`;
+    list.appendChild(li);
+  });
+}
