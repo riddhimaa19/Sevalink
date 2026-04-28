@@ -1,0 +1,42 @@
+const express = require("express");
+const app = express();
+const PORT = 3000;
+
+app.use(express.json());
+app.use(express.static("public"));
+
+let requests = [];
+let volunteers = [];
+
+// Register volunteer
+app.post("/register", (req, res) => {
+  const volunteer = req.body;
+  volunteers.push(volunteer);
+  res.json({ message: "Volunteer registered!" });
+});
+
+// Post help request
+app.post("/request", (req, res) => {
+  const request = req.body;
+  request.id = Date.now();
+  requests.push(request);
+
+  // Simple matching (first available volunteer)
+  const matched = volunteers.find(v => v.available);
+
+  if (matched) {
+    matched.available = false;
+    request.assignedTo = matched.name;
+  }
+
+  res.json({ message: "Request posted!", request });
+});
+
+// Get all requests
+app.get("/requests", (req, res) => {
+  res.json(requests);
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
